@@ -15,16 +15,16 @@ Project roger-skyline-1 done at Hive Helsinki
 
 Login with the non-root user  
 If we want to create one from the command line we can use this command:  
-adduser kip  
+    adduser kip  
 
 
 # Use sudo, with this user #  
 
 Use su command to login as root  
 Install sudo command:  
-apt-get install sudo  
+    apt-get install sudo  
 Edit /etc/sudoers with nano or vi, add this line:  
-kip     ALL(ALL:ALL) ALL          
+    kip    ALL(ALL:ALL) ALL          
 
 There is a workaround to do this process. If we install Debian, without a password in root, the system will install sudo in non-root users.  
 
@@ -34,47 +34,47 @@ There is a workaround to do this process. If we install Debian, without a passwo
 We modify, in virtualbox, the network configuration to use Bridge configuration, in this mode we will be able to use a webserver in the virtual machine.  
 
 We open the file /etc/network/interfaces with nano, or vi, and see the following lines:  
-```allow-hotplug enp0s3  
-iface enp0s3 inet dhcp```  
+    allow-hotplug enp0s3  
+    iface enp0s3 inet dhcp  
 
-allow-hotplug, allow to use the interface enp0s3 in hotplug mode  
-iface enp0s3 inet dhcp, use the interface enp0s3 in dhcp mode  
+- allow-hotplug, allow to use the interface enp0s3 in hotplug mode  
+- iface enp0s3 inet dhcp, use the interface enp0s3 in dhcp mode  
 
 We will use this configuration  
 
-```auto enp0s3  
-allow-hotplug enp0s3  
-iface enp0s3 inet static  
-  address 10.11.200.108  
-  netmask 255.255.255.252 #netmask /30  
-  gateway 10.11.254.254```  
+    auto enp0s3  
+    allow-hotplug enp0s3  
+    iface enp0s3 inet static  
+        address 10.11.200.108  
+        netmask 255.255.255.252 #netmask /30  
+        gateway 10.11.254.254  
 
 Restart the service with:  
-sudo service networking restart  
+    sudo service networking restart  
+
+Now we can test the connection sending a ping to google.com. We receive a response.  
+
+
+# Modify SSH #  
+
+We check if SSH is running with:  
+    ps aux | grep ssh  
+
+SSH is running in /sr/sbin/sshd -D  
+
+Edit the configuration file in /etc/ssh/sshd_config  
+
+- Uncomment Port 22, and write Port 5555  
+- Uncomment PermitRootLogin, change to no  
+- Uncomment PubKeyAuthentication yes  
+
+Restart SSH to apply the changes  
+
+    sudo service SSH restart  
+
+In the client, we will create a public/private key using the following command:  
+    ssh-keygen  
   
-Now we can test the connection sending a ping to google.com. We receive a response.
-
-
-# Modify SSH #
-
-We check if SSH is running with:
-ps aux | grep ssh
-
-SSH is running in /sr/sbin/sshd -D
-
-Edit the configuration file in /etc/ssh/sshd_config
-
-- Uncomment Port 22, and write Port 5555
-- Uncomment PermitRootLogin, change to No
-- Uncomment PubKeyAuthentication yes
-
-Restart SSH to apply the changes
-
-sudo service SSH restart
-
-In the client, we will create a public/private key using the following command:
-ssh-keygen
-
 Login using ssh and copy the public key
 
 ssh kip@10.11.200.108 -p 5555
