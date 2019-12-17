@@ -443,3 +443,29 @@ Start postfix mail system
 Test it with:  
 
         echo "Test email body" | mutt -s "Test Subject" root
+
+
+Create a new script /etc/cron.d/check.sh and Write
+
+        #!/bin/bash
+        if [ $(($(date +%s) - $(date +%s -r /etc/crontab))) -lt 86400 ]
+        then
+              echo "Crontab file was modified" | mutt -s "Modification Alert for Crontab file" root
+        fi
+
+Give execution permissions
+
+        sudo chmod 777 /etc/cron.d/check.sh
+
+Edit the file /etc/crontab and check if the email is sent. If it works, modify crontab
+
+        sudo crontab -e
+
+Add the new job. The file should look like this:
+
+        SHELL=/bin/bash
+        PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+        @reboot sudo /etc/cron.d/update_script.sh
+        0 4 * * 6 sudo /etc/cron.d/update_script.sh
+        0 0 * * * sudo /etc/cron.d/check.sh
