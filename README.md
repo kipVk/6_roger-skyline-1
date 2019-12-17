@@ -15,17 +15,21 @@ Project roger-skyline-1 done at Hive Helsinki
 
 Login with the non-root user  
 If we want to create one from the command line we can use this command:  
+    ```bash  
     adduser kip  
-
+    ```
 
 # Use sudo, with this user #  
 
 Use su command to login as root  
 Install sudo command:  
+    ```bash  
     apt-get install sudo  
+    ```  
 Edit /etc/sudoers with nano or vi, add this line:  
+    ```bash
     kip    ALL(ALL:ALL) ALL          
-
+    ```
 There is a workaround to do this process. If we install Debian, without a password in root, the system will install sudo in non-root users.  
 
 
@@ -74,7 +78,7 @@ Restart SSH to apply the changes
 
 In the client, we will create a public/private key using the following command:  
     ssh-keygen  
-  
+
 Login using ssh and copy the public key
 
 ssh kip@10.11.200.108 -p 5555
