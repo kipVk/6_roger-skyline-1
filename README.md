@@ -409,41 +409,37 @@ There we need to add the line
 
 Save the file, and at 4am on Saturdays the script previously created will be executed.
 
-To configure mail, download mutt
 
-        sudo apt-get install mutt -y  
+# CHECK CRONTAB CHANGES #  
 
-Test it with  
+To configure mail, download mutt and postfix
 
-        echo "Test Mail" | mutt -s "Test Subject" rebeca.cenamor@gmail.com
+        sudo apt-get install mutt postfix -y  
 
-Edit the file
+Edit the file  
 
-        sudo nano /etc/mailname
+        sudo nano /etc/mailname  
 
-and add
+and add  
 
         student.hive.fi
 
-Create a new alias
+Create a new alias  
 
         sudo nano /etc/aliases
 
-Add an email alias for reboot
+Add an email alias for root    
 
         root: rebeca.cenamor@gmail.com
 
-Test it with:
+Activate the alias with   
 
-        echo "Test email body" | mutt -s "Test Subject" root
+        sudo newaliases
 
-Install postfix  
-
-        sudo apt-get install postfix -y
-
-Start postfix mail system
+Start postfix mail system  
 
         sudo service postfix start
 
-        
+Test it with:  
 
+        echo "Test email body" | mutt -s "Test Subject" root
