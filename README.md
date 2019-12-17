@@ -58,7 +58,6 @@ Restart the service with:
 
 Now we can test the connection sending a ping to google.com. We receive a response.  
 
-
 # Modify SSH #  
 
 We check if SSH is running with:  
@@ -75,6 +74,9 @@ Edit the configuration file in /etc/ssh/sshd_config
 Restart SSH to apply the changes  
 
     sudo service SSH restart  
+
+In the client, we will create a public/private key using the following command:  
+    ssh-keygen  
 
 In the client, we will create a public/private key using the following command:  
     ssh-keygen  
