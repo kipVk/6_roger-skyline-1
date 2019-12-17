@@ -408,3 +408,42 @@ There we need to add the line
         0 4 * * 6 sudo /etc/cron.d/update_script.sh  
 
 Save the file, and at 4am on Saturdays the script previously created will be executed.
+
+To configure mail, download mutt
+
+        sudo apt-get install mutt -y  
+
+Test it with  
+
+        echo "Test Mail" | mutt -s "Test Subject" rebeca.cenamor@gmail.com
+
+Edit the file
+
+        sudo nano /etc/mailname
+
+and add
+
+        student.hive.fi
+
+Create a new alias
+
+        sudo nano /etc/aliases
+
+Add an email alias for reboot
+
+        root: rebeca.cenamor@gmail.com
+
+Test it with:
+
+        echo "Test email body" | mutt -s "Test Subject" root
+
+Install postfix  
+
+        sudo apt-get install postfix -y
+
+Start postfix mail system
+
+        sudo service postfix start
+
+        
+
