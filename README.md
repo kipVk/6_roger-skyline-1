@@ -1,58 +1,57 @@
 # 7_roger-skyline-1
-Project roger-skyline-1 done at Hive Helsinki
+Project roger-skyline-1 done at Hive Helsinki  
 
 
-# Installation of Debian #
+# Installation of Debian #  
 
--Download Debian from https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.2.0-amd64-netinst.iso
--Use English language and Finnish locale
--Select a root password
--Create a non-root user
--Follow the installation. In software selection we deselect the desktop environment to have enough space. Also this will be a web server, we don't need the GUI.
-
-
-# Non-root user #
-
-Login with the non-root user
-If we want to create one from the command line we can use this command:
-adduser kip
+- Download Debian from https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.2.0-amd64-netinst.iso  
+- Use English language and Finnish locale  
+- Select a root password  
+- Create a non-root user  
+- Follow the installation. In software selection we deselect the desktop environment to have enough space. Also this will be a web server, we don't need the GUI.  
 
 
-# Use sudo, with this user #
+# Non-root user #  
 
-Use su command to login as root
-Install sudo command:
-apt-get install sudo
-Edit /etc/sudoers with nano or vi, add this line:
-kip     ALL(ALL:ALL) ALL        
-
-There is a workaround to do this process. If we install Debian, without a password in root, the system will install sudo in non-root users.
+Login with the non-root user  
+If we want to create one from the command line we can use this command:  
+adduser kip  
 
 
-# Static IP and a Netmask in \30. #
+# Use sudo, with this user #  
 
-We modify, in virtualbox, the network configuration to use Bridge configuration, in this mode we will be able to use a webserver in the virtual machine.
+Use su command to login as root  
+Install sudo command:  
+apt-get install sudo  
+Edit /etc/sudoers with nano or vi, add this line:  
+kip     ALL(ALL:ALL) ALL          
 
-We open the file /etc/network/interfaces with nano, or vi, and see the following lines:
+There is a workaround to do this process. If we install Debian, without a password in root, the system will install sudo in non-root users.  
 
-allow-hotplug enp0s3
-iface enp0s3 inet dhcp
 
-allow-hotplug, allow to use the interface enp0s3 in hotplug mode
-iface enp0s3 inet dhcp, use the interface enp0s3 in dhcp mode
+# Static IP and a Netmask in \30. #  
 
-We will use this configuration
+We modify, in virtualbox, the network configuration to use Bridge configuration, in this mode we will be able to use a webserver in the virtual machine.  
 
-auto enp0s3
-allow-hotplug enp0s3
-iface enp0s3 inet static
-  address 10.11.200.108
-  netmask 255.255.255.252 #netmask /30
-  gateway 10.11.254.254
+We open the file /etc/network/interfaces with nano, or vi, and see the following lines:  
+```allow-hotplug enp0s3  
+iface enp0s3 inet dhcp```  
 
-Restart the service with:
-sudo service networking restart
+allow-hotplug, allow to use the interface enp0s3 in hotplug mode  
+iface enp0s3 inet dhcp, use the interface enp0s3 in dhcp mode  
 
+We will use this configuration  
+
+```auto enp0s3  
+allow-hotplug enp0s3  
+iface enp0s3 inet static  
+  address 10.11.200.108  
+  netmask 255.255.255.252 #netmask /30  
+  gateway 10.11.254.254```  
+
+Restart the service with:  
+sudo service networking restart  
+  
 Now we can test the connection sending a ping to google.com. We receive a response.
 
 
