@@ -16,24 +16,24 @@ Project roger-skyline-1 done at Hive Helsinki
 Login with the non-root user  
 If we want to create one from the command line we can use this command:  
 
-    ```  
+
     adduser kip  
-    ```
+
 
 # Use sudo, with this user #  
 
 Use su command to login as root  
 Install sudo command:  
 
-    ```  
+
     apt-get install sudo  
-    ```  
+
 
 Edit /etc/sudoers with nano or vi, add this line:  
 
-    ```
+
     kip    ALL(ALL:ALL) ALL  
-    ```  
+
 
 There is a workaround to do this process. If we install Debian, without a password in root, the system will install sudo in non-root users.  
 
@@ -44,24 +44,24 @@ We modify, in virtualbox, the network configuration to use Bridge configuration,
 
 We open the file /etc/network/interfaces with nano, or vi, and see the following lines:  
 
-    ```  
+
     allow-hotplug enp0s3  
     iface enp0s3 inet dhcp    
-    ```  
+
 
 - **allow-hotplug**, allow to use the interface enp0s3 in hotplug mode  
 - **iface enp0s3 inet dhcp**, use the interface enp0s3 in dhcp mode  
 
 We will use this configuration  
 
-    ```  
+
     auto enp0s3  
     allow-hotplug enp0s3  
     iface enp0s3 inet static  
         address 10.11.200.108  
         netmask 255.255.255.252 #netmask /30  
         gateway 10.11.254.254  
-    ```  
+
 
 Restart the service with:  
     sudo service networking restart  
@@ -72,9 +72,9 @@ Now we can test the connection sending a ping to google.com. We receive a respon
 
 We check if SSH is running with:  
 
-    ```  
+
     ps aux | grep ssh  
-    ```  
+
 
 SSH is running in /sr/sbin/sshd -D  
 
@@ -86,59 +86,59 @@ Edit the configuration file in /etc/ssh/sshd_config
 
 Restart SSH to apply the changes  
 
-    ```  
+
     sudo service SSH restart  
-    ```  
+
 
 In the client, we will create a public/private key using the following command:  
 
-    ```  
+
     ssh-keygen  
-    ```  
+
 
 Login using ssh and copy the public key  
 
-      ```    
+
       ssh kip@10.11.200.108 -p 5555  
       sudo mkdir /.ssh  
       cd /.ssh  
       sudo nano authorized_kets  
-      ```  
+
 Paste the pub key and save
 
-      ```  
+
       sudo nano /etc/ssh/sshd_config  
-      ```  
+
 
 Uncomment Password Authentication and put no    
 Save file   
 
-      ```  
+
       sudo service ssh restart  
-      ```  
+
 
 Another option is to use this command  
 
-      ```
+
       ssh-copy-id -i id_rsa.pub kip@10.11.200.108 -p 5555  
-      ```  
+
 
 Login using the following command:  
 
-      ```  
+
       ssh kip@10.11.200.108 -p 5555  
-      ```  
+
 
 
 # Firewall #  
 
 Check the actual list of IPtables with the attribute -L  
 
-      ```  
+
       sudo iptables -L
       sudo iptables -t nat -L
       sudo iptables -t mangle -L
-      ```  
+
 
 IPTables manages three types of tables  
 
@@ -148,13 +148,13 @@ IPTables manages three types of tables
 
 We will create and modify the file /etc/network/if-pre-up.d/iptables, this file is loaded during startup.  
 
-      ```  
+
       sudo nano etc/network/if-pre-up.d/iptables  
-      ```  
+
 
 Write this file  
 
-      ```  
+
       #!/bin/bash  
 
       #Reset the rules of the three tables  
@@ -184,25 +184,25 @@ Write this file
       #ACCEPT established or related connections
       iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
       iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ```  
+
 
 We change the permissions to executable   
 
-      ```  
+
       sudo chmod +x /etc/network/if-pre-up.d/iptables  
-      ```  
+
 
 If there is no net you have to use these permissions  
 
-      ```  
+
       sudo chmod 0777 /etc/network/if-pre-up.d/iptables  
-      ```  
+
 
 Execute the script  
 
-      ```   
+
       sudo /etc/network/if-pre-up.d/iptables   
-      ```  
+
 
 # DDOS PROTECTION #  
 
@@ -215,23 +215,23 @@ We will use this guide to protect ssh, http and https:
 
 https://www.digitalocean.com/community/tutorials/how-to-protect-an-apache-server-with-fail2ban-on-ubuntu-14-04  
 
-      ```  
+
       sudo apt-get update  
       sudo apt-get install fail2ban  
-      ```  
+
 
 copy the jail.conf file as jail.local  
 
-      ```  
+
       sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local  
-      ```  
+
 
 We set the destination mail, and the sender  
 
-      ```  
+
       destemail = rcenamor@student.hive.fi  
       sender = root@<fq-hostname>  
-      ```  
+
 
 The DOS protection is set. We can modify in the sshd section the maxrety values or the bantime.  
 
@@ -241,9 +241,9 @@ The DOS protection is set. We can modify in the sshd section the maxrety values 
 We will use Port Sentry  
 
 
-    ```  
+
     sudo apt-get install portsentry  
-    ```  
+
 
 Edit the configuration in /etc/portsentry/portsentry.conf  
 
@@ -253,24 +253,24 @@ Edit the configuration in /etc/default/portsentry.conf
 
 We can try if the ports are being detected with  
 
-      ```  
+
       nmap -p 1-65535 -T4 -A -v -PE -PS22,25,80 -PA21,23,80 -Pn 10.11.200.108  
-      ```  
+
 
 And detect attacks with  
 
-      ```  
+
       grep "attackalert" /var/log/syslog  
-      ```  
+
 
 
 # SERVICES #  
 
 Check the services enabled  
 
-      ```  
+
       sudo systemctl list-unit-files --state=enabled  
-      ```  
+
 
 This is a list of the services  
 
@@ -312,7 +312,6 @@ sshd.service
 
 We can disable them by using  
 
-      ```  
+
       sudo systemctl disable cups.path  
-      ```  
-  
+        
