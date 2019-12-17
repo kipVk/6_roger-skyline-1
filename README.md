@@ -329,9 +329,9 @@ We can disable them by using
 
 # UPDATE SCRIPT #   
 
-At /home/kip/ create a file
+At /etc/cron.d/ create a file
 
-        sudo nano /home/kip/update_script.sh  
+        sudo nano /etc/cron.d/update_script.sh  
 
 On that script write  
 
@@ -404,7 +404,7 @@ There we need to add the line
         SHELL=/bin/bash
         PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
-        @reboot sudo ~/update_script.sh
-        0 4 * * 6 sudo ~/update_script.sh  
+        @reboot sudo /etc/cron.d/update_script.sh
+        0 4 * * 6 sudo /etc/cron.d/update_script.sh  
 
 Save the file, and at 4am on Saturdays the script previously created will be executed.
