@@ -344,7 +344,11 @@ On that script write
         echo "Started at: " >> /var/log/update_script.log
         date >> /var/log/update_script.log
         echo >> /var/log/update_script.log
-        sudo apt-get upgrade -y >> /var/log/update_script.log
+        echo "----------------------------" >> /var/log/update_script.log
+        sudo apt-get update -y >> /var/log/update_script.log
+        echo "----------------------------" >> /var/log/update_script.log
+        sudo apt-get upgrade -y  >> /var/log/update_script.log
+        echo "----------------------------" >> /var/log/update_script.log
         echo >> /var/log/update_script.log
         echo "Finished at: " >> /var/log/update_script.log
         date >> /var/log/update_script.log
@@ -357,15 +361,21 @@ It will execute an upgrade and save the results on the log file like this:
         ----------------------------
 
         Started at:
-        Tue 17 Dec 2019 05:21:46 PM EET
+        Tue 17 Dec 2019 05:34:28 PM EET
 
+        ----------------------------
+        Hit:1 http://security.debian.org/debian-security buster/updates InRelease
+        Hit:2 http://deb.debian.org/debian buster InRelease
+        Hit:3 http://deb.debian.org/debian buster-updates InRelease
+        Reading package lists...
+        ----------------------------
         Reading package lists...
         Building dependency tree...
         Reading state information...
         Calculating upgrade...
         0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+        ----------------------------
 
         Finished at:
-        Tue 17 Dec 2019 05:21:46 PM EET
+        Tue 17 Dec 2019 05:34:29 PM EET
 
-      
