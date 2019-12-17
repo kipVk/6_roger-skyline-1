@@ -274,28 +274,28 @@ Check the services enabled
 
 This is a list of the services  
 
-cups.path                               enabled  
-anacron.service                         enabled  
-apache2.service                        enabled  
-apparmor.service                       enabled  
-autovt@.service                        enabled  
-avahi-daemon.service                   enabled  
-bluetooth.service                      enabled  
-console-setup.service                  enabled  
-cron.service                           enabled  
-cups-browsed.service                   enabled  
-cups.service                           enabled  
-dbus-fi.w1.wpa_supplicant1.service     enabled  
-dbus-org.bluez.service                 enabled  
-dbus-org.freedesktop.Avahi.service     enabled  
-dbus-org.freedesktop.timesync1.service enabled  
-fail2ban.service                       enabled  
-getty@.service                         enabled  
-keyboard-setup.service                 enabled  
-networking.service                     enabled  
-rsyslog.service                        enabled  
-ssh.service                            enabled  
-sshd.service                           enabled  
+cups.path               |                enabled  
+anacron.service          |               enabled  
+apache2.service           |             enabled  
+apparmor.service           |            enabled  
+autovt@.service             |           enabled  
+avahi-daemon.service         |          enabled  
+bluetooth.service             |         enabled  
+console-setup.service          |        enabled  
+cron.service                    |       enabled  
+cups-browsed.service             |      enabled  
+cups.service                      |     enabled  
+dbus-fi.w1.wpa_supplicant1.service |    enabled  
+dbus-org.bluez.service              |   enabled  
+dbus-org.freedesktop.Avahi.service   |  enabled  
+dbus-org.freedesktop.timesync1.service| enabled  
+fail2ban.service                       |enabled  
+getty@.service                         |enabled  
+keyboard-setup.service                 |enabled  
+networking.service                     |enabled  
+rsyslog.service                        |enabled  
+ssh.service                            |enabled  
+sshd.service                           |enabled  
 
 We only need these services  
 
