@@ -15,7 +15,8 @@ Project roger-skyline-1 done at Hive Helsinki
 
 Login with the non-root user  
 If we want to create one from the command line we can use this command:  
-    ```bash  
+
+    ```  
     adduser kip  
     ```
 
@@ -23,13 +24,17 @@ If we want to create one from the command line we can use this command:
 
 Use su command to login as root  
 Install sudo command:  
-    ```bash  
+
+    ```  
     apt-get install sudo  
     ```  
+
 Edit /etc/sudoers with nano or vi, add this line:  
-    ```bash
-    kip    ALL(ALL:ALL) ALL          
+
     ```
+    kip    ALL(ALL:ALL) ALL  
+    ```  
+
 There is a workaround to do this process. If we install Debian, without a password in root, the system will install sudo in non-root users.  
 
 
@@ -38,20 +43,25 @@ There is a workaround to do this process. If we install Debian, without a passwo
 We modify, in virtualbox, the network configuration to use Bridge configuration, in this mode we will be able to use a webserver in the virtual machine.  
 
 We open the file /etc/network/interfaces with nano, or vi, and see the following lines:  
-    allow-hotplug enp0s3  
-    iface enp0s3 inet dhcp  
 
-- allow-hotplug, allow to use the interface enp0s3 in hotplug mode  
-- iface enp0s3 inet dhcp, use the interface enp0s3 in dhcp mode  
+    ```  
+    allow-hotplug enp0s3  
+    iface enp0s3 inet dhcp    
+    ```  
+
+- **allow-hotplug**, allow to use the interface enp0s3 in hotplug mode  
+- **iface enp0s3 inet dhcp**, use the interface enp0s3 in dhcp mode  
 
 We will use this configuration  
 
+    ```  
     auto enp0s3  
     allow-hotplug enp0s3  
     iface enp0s3 inet static  
         address 10.11.200.108  
         netmask 255.255.255.252 #netmask /30  
         gateway 10.11.254.254  
+    ```  
 
 Restart the service with:  
     sudo service networking restart  
@@ -61,7 +71,10 @@ Now we can test the connection sending a ping to google.com. We receive a respon
 # Modify SSH #  
 
 We check if SSH is running with:  
+
+    ```  
     ps aux | grep ssh  
+    ```  
 
 SSH is running in /sr/sbin/sshd -D  
 
@@ -73,184 +86,233 @@ Edit the configuration file in /etc/ssh/sshd_config
 
 Restart SSH to apply the changes  
 
+    ```  
     sudo service SSH restart  
+    ```  
 
 In the client, we will create a public/private key using the following command:  
+
+    ```  
     ssh-keygen  
+    ```  
 
-In the client, we will create a public/private key using the following command:  
-    ssh-keygen  
+Login using ssh and copy the public key  
 
-Login using ssh and copy the public key
-
-ssh kip@10.11.200.108 -p 5555
-sudo mkdir /.ssh
-cd /.ssh
-sudo nano authorized_kets
+      ```    
+      ssh kip@10.11.200.108 -p 5555  
+      sudo mkdir /.ssh  
+      cd /.ssh  
+      sudo nano authorized_kets  
+      ```  
 Paste the pub key and save
-sudo nano /etc/ssh/sshd_config
-Uncomment Password Authentication and put no
-Save file
-sudo service ssh restart
 
-Another option is to use this command
-ssh-copy-id -i id_rsa.pub kip@10.11.200.108 -p 5555
+      ```  
+      sudo nano /etc/ssh/sshd_config  
+      ```  
 
-Login using the following command:
+Uncomment Password Authentication and put no    
+Save file   
 
-ssh kip@10.11.200.108 -p 5555
+      ```  
+      sudo service ssh restart  
+      ```  
 
+Another option is to use this command  
 
-# Firewall #
+      ```
+      ssh-copy-id -i id_rsa.pub kip@10.11.200.108 -p 5555  
+      ```  
 
-Check the actual list of IPtables with the attribute -L
+Login using the following command:  
 
-sudo iptables -L
-sudo iptables -t nat -L
-sudo iptables -t mangle -L
-
-IPTables manages three types of tables
-
-- MANGLE tables. These tables modify the packets. The TOS, the TTL, and the MARK parameters.
-- NAT tables. These tables allow to modify the ip headers of the packets. We use this for SNAT (Ip masquerading) and DNAT (port forwarding).
-- Filter tables. These are the tables used to DROP and ACCEPT packets.
-
-We will create and modify the file /etc/network/if-pre-up.d/iptables, this file is loaded during startup.
-
-sudo nano etc/network/if-pre-up.d/iptables
-
-#!/bin/bash
-
-#Reset the rules of the three tables
-iptables -F
-iptables -X
-iptables -t nat -F
-iptables -t nat -X
-iptables -t mangle -F
-iptables -t mangle -X
-
-#DROP all the packets
-iptables -P INPUT DROP
-iptables -P OUTPUT DROP
-iptables -P FORWARD DROP
-
-#OPEN PORTS
-iptables -A INPUT -p tcp --dport 5555 -j ACCEPT #SSH
-iptables -A INPUT -p tcp --dport 80 -j ACCEPT #http
-iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT #http, to update packages
-iptables -A INPUT -p tcp --dport 443 -j ACCEPT #https
-iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT #https, to update packages
-iptables -A OUTPUT -p udp --dport 53 -j ACCEPT #dns normal
-iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT #edns
-iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT #ping output
-iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT #ping reply
+      ```  
+      ssh kip@10.11.200.108 -p 5555  
+      ```  
 
 
-#ACCEPT established or related connections
-iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+# Firewall #  
 
-We change the permissions to executable
+Check the actual list of IPtables with the attribute -L  
 
-sudo chmod +x /etc/network/if-pre-up.d/iptables
+      ```  
+      sudo iptables -L
+      sudo iptables -t nat -L
+      sudo iptables -t mangle -L
+      ```  
 
-If there is no net you have to use these permissions
+IPTables manages three types of tables  
 
-sudo chmod 0777 /etc/network/if-pre-up.d/iptables
+- MANGLE tables. These tables modify the packets. The TOS, the TTL, and the MARK parameters.  
+- NAT tables. These tables allow to modify the ip headers of the packets. We use this for SNAT (Ip masquerading) and DNAT (port forwarding).  
+- Filter tables. These are the tables used to DROP and ACCEPT packets.  
 
-Execute the script
+We will create and modify the file /etc/network/if-pre-up.d/iptables, this file is loaded during startup.  
 
-sudo /etc/network/if-pre-up.d/iptables
+      ```  
+      sudo nano etc/network/if-pre-up.d/iptables  
+      ```  
+
+Write this file  
+
+      ```  
+      #!/bin/bash  
+
+      #Reset the rules of the three tables  
+      iptables -F
+      iptables -X
+      iptables -t nat -F
+      iptables -t nat -X
+      iptables -t mangle -F
+      iptables -t mangle -X
+
+      #DROP all the packets
+      iptables -P INPUT DROP
+      iptables -P OUTPUT DROP
+      iptables -P FORWARD DROP
+
+      #OPEN PORTS
+      iptables -A INPUT -p tcp --dport 5555 -j ACCEPT #SSH
+      iptables -A INPUT -p tcp --dport 80 -j ACCEPT #http
+      iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT #http, to update packages
+      iptables -A INPUT -p tcp --dport 443 -j ACCEPT #https
+      iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT #https, to update packages
+      iptables -A OUTPUT -p udp --dport 53 -j ACCEPT #dns normal
+      iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT #edns
+      iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT #ping output
+      iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT #ping reply
+
+      #ACCEPT established or related connections
+      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      ```  
+
+We change the permissions to executable   
+
+      ```  
+      sudo chmod +x /etc/network/if-pre-up.d/iptables  
+      ```  
+
+If there is no net you have to use these permissions  
+
+      ```  
+      sudo chmod 0777 /etc/network/if-pre-up.d/iptables  
+      ```  
+
+Execute the script  
+
+      ```   
+      sudo /etc/network/if-pre-up.d/iptables   
+      ```  
+
+# DDOS PROTECTION #  
+
+We can use several tools to have DOS Protection. IPTables, Fail2Ban  
+IPTables requires a lot of rules, so we will use Fail2Ban to create these rules  
+
+Install Fail2Ban  
+
+We will use this guide to protect ssh, http and https:  
+
+https://www.digitalocean.com/community/tutorials/how-to-protect-an-apache-server-with-fail2ban-on-ubuntu-14-04  
+
+      ```  
+      sudo apt-get update  
+      sudo apt-get install fail2ban  
+      ```  
+
+copy the jail.conf file as jail.local  
+
+      ```  
+      sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local  
+      ```  
+
+We set the destination mail, and the sender  
+
+      ```  
+      destemail = rcenamor@student.hive.fi  
+      sender = root@<fq-hostname>  
+      ```  
+
+The DOS protection is set. We can modify in the sshd section the maxrety values or the bantime.  
 
 
-# DDOS PROTECTION #
+# PORT SCANNING #  
 
-We can use several tools to have DOS Protection. IPTables, Fail2Ban
-IPTables requires a lot of rules, so we will use Fail2Ban to create these rules
-
-Install Fail2Ban
-
-We will use this guide to protect ssh, http and https:
-
-https://www.digitalocean.com/community/tutorials/how-to-protect-an-apache-server-with-fail2ban-on-ubuntu-14-04
-
-sudo apt-get update
-sudo apt-get install fail2ban
-
-copy the jail.conf file as jail.local
-
-sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-
-We set the destination mail, and the sender
-
-destemail = rcenamor@student.hive.fi
-sender = root@<fq-hostname>
-
-The DOS protection is set. We can modify in the sshd section the maxrety values or the bantime.
+We will use Port Sentry  
 
 
-# PORT SCANNING #
+    ```  
+    sudo apt-get install portsentry  
+    ```  
 
-We will use Port Sentry
+Edit the configuration in /etc/portsentry/portsentry.conf  
 
-sudo apt-get install portsentry
+Change BLOCK_UDP and BLOCK_TCP to 1  
 
-Edit the configuration in /etc/portsentry/portsentry.conf
+Edit the configuration in /etc/default/portsentry.conf   
 
-Change BLOCK_UDP and BLOCK_TCP to 1
+We can try if the ports are being detected with  
 
-Edit the configuration in /etc/default/portsentry.conf
+      ```  
+      nmap -p 1-65535 -T4 -A -v -PE -PS22,25,80 -PA21,23,80 -Pn 10.11.200.108  
+      ```  
 
-We can try if the ports are being detected with
-nmap -p 1-65535 -T4 -A -v -PE -PS22,25,80 -PA21,23,80 -Pn 10.11.200.108
+And detect attacks with  
 
-And detect attacks with
-grep "attackalert" /var/log/syslog
+      ```  
+      grep "attackalert" /var/log/syslog  
+      ```  
 
 
-# SERVICES #
+# SERVICES #  
 
-Check the services enabled
+Check the services enabled  
 
-sudo systemctl list-unit-files --state=enabled
+      ```  
+      sudo systemctl list-unit-files --state=enabled  
+      ```  
 
-This is a list of the services
+This is a list of the services  
 
-cups.path                              enabled
-anacron.service                        enabled
-apache2.service                        enabled
-apparmor.service                       enabled
-autovt@.service                        enabled
-avahi-daemon.service                   enabled
-bluetooth.service                      enabled
-console-setup.service                  enabled
-cron.service                           enabled
-cups-browsed.service                   enabled
-cups.service                           enabled
-dbus-fi.w1.wpa_supplicant1.service     enabled
-dbus-org.bluez.service                 enabled
-dbus-org.freedesktop.Avahi.service     enabled
-dbus-org.freedesktop.timesync1.service enabled
-fail2ban.service                       enabled
-getty@.service                         enabled
-keyboard-setup.service                 enabled
-networking.service                     enabled
-rsyslog.service                        enabled
-ssh.service                            enabled
-sshd.service                           enabled
+cups.path                              enabled  
+anacron.service                        enabled  
+apache2.service                        enabled  
+apparmor.service                       enabled  
+autovt@.service                        enabled  
+avahi-daemon.service                   enabled  
+bluetooth.service                      enabled  
+console-setup.service                  enabled  
+cron.service                           enabled  
+cups-browsed.service                   enabled  
+cups.service                           enabled  
+dbus-fi.w1.wpa_supplicant1.service     enabled  
+dbus-org.bluez.service                 enabled  
+dbus-org.freedesktop.Avahi.service     enabled  
+dbus-org.freedesktop.timesync1.service enabled  
+fail2ban.service                       enabled  
+getty@.service                         enabled  
+keyboard-setup.service                 enabled  
+networking.service                     enabled  
+rsyslog.service                        enabled  
+ssh.service                            enabled  
+sshd.service                           enabled  
 
-We only need these services
+We only need these services  
 
-autovt@.service
-apache2.service
-console-setup.service
-cron.service
-fail2ban.service
-getty@.service
-keyboard-setup.service
-networking.service
-ssh.service
-sshd.service
+autovt@.service  
+apache2.service  
+console-setup.service  
+cron.service  
+fail2ban.service  
+getty@.service  
+keyboard-setup.service  
+networking.service  
+ssh.service  
+sshd.service  
 
-We can disable them by using
-sudo systemctl disable cups.path
+We can disable them by using  
+
+      ```  
+      sudo systemctl disable cups.path  
+      ```  
+  
