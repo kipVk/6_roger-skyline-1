@@ -1,0 +1,84 @@
+Create new user
+adduser kip
+usermod -aG sudo kip
+nano /etc/sudoers and add line under %sudo ALL=(ALL:ALL) ALL, with the user name (kip ALL=(ALL:ALL) ALL)
+
+Ip asignada por el dhcp 10.0.2.15
+/24 corresponde con la mascara
+
+Buscar en tabla en wikipedia /24 es  255.255.255.0 numero de h sots 254
+Broadcast 10.0.2.255 (donde negocian)
+
+Calcular la puerta de enlace a partir del /24 traceroute -n google.com primera dirección 10.0.2.2
+Virtual box crea su propia red, A través de NAT sale fuera
+
+Al cambiar a bridged conectamos con la red del mac
+
+Ip a en debían, enp0s3 ahora es 10.11.200.119/16
+
+Auto y nombre de interfaz para que arranque la tarjeta de red
+Allow-hotplug para que si lo cambio en el momento se conecte y desconecte
+
+Editar /etc/network/interfaces
+auto enp0s3
+iface enp0s3 inet static
+      address 10.11.200.119
+      netmask 255.255.255.252
+      gateway 10.11.254.254
+
+
+
+http://fpg.66ghz.com/DebianRed/etcnetworkinterfaces.html?i=2
+https://www.snel.com/support/how-to-configure-static-ip-on-debian-10/
+
+
+Sudo service networking restart para reiniciar el servicio
+O sudo systemctl restart networking
+O ifdown enp0s3
+O ifup enp0s3
+
+
+Editar /etc/ssh/sshd_config
+
+Port 2222
+    PasswordAuthentification yes
+    PermitRootLogin no
+    PubkeyAuthentication yes
+
+Pongo passwordauthentification yes para power copiar la clave desde ssh. Una vez copiada, se pone a no.
+Generar claves desde mac
+Ssh-keygen
+
+Claves publica y privada
+La publica al servidor ssh para las conexiones. Como es publica se puede compartir
+La privada es la que firma
+
+
+Desde mac, copio y me conecto por ssh a kip
+
+Creo el directorio .ssh y pego la clave publica en el fichero authorized_keys
+
+Al cambiar el puerto, tengo que configurarlo en iptables para que pueda conectar al otro puerto
+
+En debian hago
+iptables -A INPUT -p tcp -i enp0s3 -d 666 -j ACCEPT
+
+
+Iptables -f es un flush
+-P INPUT DROP todas las entradas de cualquier protocolo las dropea, elimina los paquetes que entran en el host. Elimina trafico de entrada
+-P OUTPUT DROP elimina los paquetes generates en el host
+-P FORWARD DROP elimination los paquetes del exterior que no van dirigidos a ningún proceso del host
+	.	iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT 
+Permite conexiones de salida del host que hayan sido establecidas o que estén relacionados con conexiones permitidas.
+-j LOG para guardar el log
+iptables -I INPUT -p tcp -dport 666 -m connlimit -connlimit-above 10 -connlimit-mask 20 -j DROP
+ Protection DOS para limitar el numero de conexiones máximas que se pueden hacer en el puerto 666
+
+Si queremos un servidor web metemos los puertos 80 y el 443, pero sino no hace falta.
+
+https://serverfault.com/questions/246225/how-can-i-use-iptable-rules-to-prevent-port-scanning-like-hping-and-nmap
+
+
+https://medium.com/@iced_burn/iptables-rules-and-commands-79ac2b386004
+
+
