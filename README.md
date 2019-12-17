@@ -299,8 +299,8 @@ sshd.service
 
 We only need these services  
 
-autovt@.service  
 apache2.service  
+autovt@.service  
 console-setup.service  
 cron.service  
 fail2ban.service  
@@ -314,4 +314,58 @@ We can disable them by using
 
 
       sudo systemctl disable cups.path  
+      sudo systemctl disable anacron.service  
+      sudo systemctl disable apparmor.service  
+      sudo systemctl disable avahi-daemon.service  
+      sudo systemctl disable bluetooth.service  
+      sudo systemctl disable cups-browsed.service  
+      sudo systemctl disable cups.service   
+      sudo systemctl disable dbus-fi.w1.wpa_supplicant1.service  
+      sudo systemctl disable dbus-org.bluez.service   
+      sudo systemctl disable dbus-org.freedesktop.Avahi.service  
+      sudo systemctl disable dbus-org.freedesktop.timesync1.service  
+      sudo systemctl disable rsyslog.service   
 
+
+# UPDATE SCRIPT #   
+
+At /home/kip/ create a file
+
+        sudo nano /home/kip/update_script.sh  
+
+On that script write  
+
+        #!/bin/bash
+        echo >> /var/log/update_script.log
+        echo "----------------------------" >> /var/log/update_script.log
+        echo "- Scheduled Upgrade system -" >> /var/log/update_script.log
+        echo "----------------------------" >> /var/log/update_script.log
+        echo >> /var/log/update_script.log
+        echo "Started at: " >> /var/log/update_script.log
+        date >> /var/log/update_script.log
+        echo >> /var/log/update_script.log
+        sudo apt-get upgrade -y >> /var/log/update_script.log
+        echo >> /var/log/update_script.log
+        echo "Finished at: " >> /var/log/update_script.log
+        date >> /var/log/update_script.log
+        echo >> /var/log/update_script.log
+
+It will execute an upgrade and save the results on the log file like this:
+
+        ----------------------------
+        - Scheduled Upgrade system -
+        ----------------------------
+
+        Started at:
+        Tue 17 Dec 2019 05:21:46 PM EET
+
+        Reading package lists...
+        Building dependency tree...
+        Reading state information...
+        Calculating upgrade...
+        0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+        Finished at:
+        Tue 17 Dec 2019 05:21:46 PM EET
+
+      
