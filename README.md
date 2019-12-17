@@ -274,8 +274,8 @@ Check the services enabled
 
 This is a list of the services  
 
-cups.path               |                enabled  
-anacron.service          |               enabled  
+cups.path | enabled  
+anacron.service | enabled  
 apache2.service           |             enabled  
 apparmor.service           |            enabled  
 autovt@.service             |           enabled  
