@@ -155,35 +155,37 @@ We will create and modify the file /etc/network/if-pre-up.d/iptables, this file 
 Write this file  
 
 
-      #!/bin/bash  
+        #!/bin/bash
+        #Reset the rules of the three tables
+        iptables -F
+        iptables -X
+        iptables -t nat -F
+        iptables -t nat -X
+        iptables -t mangle -F
+        iptables -t mangle -X
 
-      #Reset the rules of the three tables  
-      iptables -F
-      iptables -X
-      iptables -t nat -F
-      iptables -t nat -X
-      iptables -t mangle -F
-      iptables -t mangle -X
+        #DROP all the packages
+        iptables -P INPUT DROP
+        iptables -P OUTPUT DROP
+        iptables -P FORWARD DROP
 
-      #DROP all the packets
-      iptables -P INPUT DROP
-      iptables -P OUTPUT DROP
-      iptables -P FORWARD DROP
+        #OPEN PORTS
+        iptables -A INPUT -p tcp --dport 5555 -j ACCEPT #SSH
+        iptables -A INPUT -p tcp --dport 80 -j ACCEPT #http
+        iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT #http, to update packages
+        iptables -A INPUT -p tcp --dport 443 -j ACCEPT #https
+        iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT #https, to update packages
+        iptables -A OUTPUT -p udp --dport 53 -j ACCEPT #dns normal
+        iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT #edns
+        iptables -A OUTPUT -p tcp --sport 25 -j ACCEPT #sendmail
+        iptables -A OUTPUT -p tcp --dport 25 -j ACCEPT #sendmail
+        iptables -A OUTPUT -p tcp --sport 587 -j ACCEPT #smtp
+        iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT #ping output
+        iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT #ping reply
 
-      #OPEN PORTS
-      iptables -A INPUT -p tcp --dport 5555 -j ACCEPT #SSH
-      iptables -A INPUT -p tcp --dport 80 -j ACCEPT #http
-      iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT #http, to update packages
-      iptables -A INPUT -p tcp --dport 443 -j ACCEPT #https
-      iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT #https, to update packages
-      iptables -A OUTPUT -p udp --dport 53 -j ACCEPT #dns normal
-      iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT #edns
-      iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT #ping output
-      iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT #ping reply
-
-      #ACCEPT established or related connections
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+        #ACCEPT established or related connections
+        iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+        iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 
 We change the permissions to executable   
