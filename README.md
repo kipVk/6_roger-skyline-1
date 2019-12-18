@@ -177,9 +177,8 @@ Write this file
         iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT #https, to update packages
         iptables -A OUTPUT -p udp --dport 53 -j ACCEPT #dns normal
         iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT #edns
-        iptables -A OUTPUT -p tcp --sport 25 -j ACCEPT #sendmail
         iptables -A OUTPUT -p tcp --dport 25 -j ACCEPT #sendmail
-        iptables -A OUTPUT -p tcp --sport 587 -j ACCEPT #smtp
+        iptables -A OUTPUT -p tcp --dport 587 -j ACCEPT #smtp
         iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT #ping output
         iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT #ping reply
 
