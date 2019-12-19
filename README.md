@@ -470,3 +470,75 @@ Add the new job. The file should look like this:
         @reboot sudo /etc/cron.d/update_script.sh
         0 4 * * 6 sudo /etc/cron.d/update_script.sh
         0 0 * * * sudo /etc/cron.d/check.sh
+
+
+# WEB PART
+
+Install apache2
+
+        sudo apt update
+        sudo apt install apache2
+
+Test if it's working
+
+        sudo systemctl status apache2
+
+From the Mac, go to a browser and test the machine's ip 10.11.200.108. It should open the apache2 page.
+
+Apache on Debian 10 has one server block enabled by default that is configured to serve documents from the /var/www/html directory. While this works well for a single site, it can become unwieldy if you are hosting multiple sites. Instead of modifying /var/www/html, let’s create a directory structure within /var/www for our your_domain site, leaving /var/www/html in place as the default directory to be served if a client request doesn’t match any other sites.
+
+Create the directory for your_domain as follows, using the -p flag to create any necessary parent directories:
+
+        sudo mkdir -p /var/www/rcenamor
+
+Next, assign ownership of the directory with the $USER environmental variable:
+
+        sudo chown -R $USER:$USER /var/www/rcenamor
+
+The permissions of your web roots should be correct if you haven’t modified your unmask value, but you can make sure by typing:
+
+        sudo chmod -R 755 /var/www/rcenamor
+
+Next, create a sample index.html page using nano:
+
+        sudo nano /var/www/rcenamor/index.html
+
+In order for Apache to serve this content, it’s necessary to create a virtual host file with the correct directives. Instead of modifying the default configuration file located at /etc/apache2/sites-available/000-default.conf directly, let’s make a new one at /etc/apache2/sites-available/rcenamor.conf:
+
+        sudo nano /etc/apache2/sites-available/rcenamor.conf
+
+Paste in the following configuration block, which is similar to the default, but updated for our new directory and domain name:
+
+        <VirtualHost *:80>
+            ServerAdmin rebeca.cenamor@gmail.com
+            ServerName 10.11.200.108
+            ServerAlias www.rcenamor
+            DocumentRoot /var/www/rcenamor
+            ErrorLog ${APACHE_LOG_DIR}/error.log
+            CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>
+
+Notice that we’ve updated the DocumentRoot to our new directory and ServerAdmin to an email that the rcenamor site administrator can access. We’ve also added two directives: ServerName, which establishes the base domain that should match for this virtual host definition, and ServerAlias, which defines further names that should match as if they were the base name.
+
+Save and close the file when you are finished.
+
+Let’s enable the file with the a2ensite tool:
+
+        sudo a2ensite rcenamor.conf
+
+Disable the default site defined in 000-default.conf:
+
+        sudo a2dissite 000-default.conf
+
+Next, let’s test for configuration errors:
+
+        sudo apache2ctl configtest
+
+You should see the following output:
+
+        Output
+        Syntax OK
+
+Restart Apache to implement your changes:
+
+        sudo systemctl restart apache2
