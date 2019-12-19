@@ -474,6 +474,8 @@ Add the new job. The file should look like this:
 
 # WEB PART
 
+(following this tutorial)
+
 Install apache2
 
         sudo apt update
@@ -542,3 +544,9 @@ You should see the following output:
 Restart Apache to implement your changes:
 
         sudo systemctl restart apache2
+
+Accessing 10.11.200.108 on a web browser should show the index.html result file.
+
+If that's working, I wanna copy some files from my Mac to the virtual machine. For that I used:
+
+        scp -P 5555 -r /Users/rcenamor/kvk3/Login_v1/* kip@10.11.200.108:/var/www/rcenamor
