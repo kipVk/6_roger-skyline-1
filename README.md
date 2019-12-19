@@ -550,3 +550,60 @@ Accessing 10.11.200.108 on a web browser should show the index.html result file.
 If that's working, I wanna copy some files from my Mac to the virtual machine. For that I used:
 
         scp -P 5555 -r /Users/rcenamor/kvk3/Login_v1/* kip@10.11.200.108:/var/www/rcenamor
+
+
+# SSL CERTIFICATES
+
+Generate the ssl certificates with this command:
+
+        sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=FR/ST=IDF/O=42/OU=Project-roger/CN=10.11.200.247" -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+
+Create the /etc/apache2/conf-available/ssl-params.conf file to have this output:
+
+        SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+        SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+        SSLHonorCipherOrder On
+
+        Header always set X-Frame-Options DENY
+        Header always set X-Content-Type-Options nosniff
+
+        SSLCompression off
+        SSLUseStapling on
+        SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+
+        SSLSessionTickets Off
+
+Edit the /etc/apache2/sites-available/default-ssl.conf and /etc/apache2/sites-available/rcenamor-ssl.conf to have this output
+
+        <IfModule mod_ssl.c>
+        	<VirtualHost _default_:443>
+        		ServerAdmin rebeca.cenamor@gmail.com
+        		ServerName	10.11.200.108
+
+        		DocumentRoot /var/www/rcenamor
+
+        		ErrorLog ${APACHE_LOG_DIR}/error.log
+        		CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        		SSLEngine on
+
+        		SSLCertificateFile	/etc/ssl/certs/apache-selfsigned.crt
+        		SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+
+        		<FilesMatch "\.(cgi|shtml|phtml|php)$">
+        				SSLOptions +StdEnvVars
+        		</FilesMatch>
+        		<Directory /usr/lib/cgi-bin>
+        				SSLOptions +StdEnvVars
+        		</Directory>
+
+        	</VirtualHost>
+        </IfModule>
+
+And to load our new config run those commands:
+
+        sudo a2enmod ssl
+        sudo a2enmod headers
+        sudo a2ensite default-ssl
+        sudo a2enconf ssl-params
+        systemctl reload apache2
