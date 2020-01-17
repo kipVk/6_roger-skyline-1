@@ -328,6 +328,8 @@ We can disable them by using
       sudo systemctl disable rsyslog.service   
 
 
+I made a scripit that runs those commands, and added it to crontab on reboot so they are killed instantly.
+
 # UPDATE SCRIPT #   
 
 At /etc/cron.d/ create a file
@@ -337,6 +339,7 @@ At /etc/cron.d/ create a file
 On that script write  
 
         #!/bin/bash
+        sleep 10
         echo >> /var/log/update_script.log
         echo "----------------------------" >> /var/log/update_script.log
         echo "- Scheduled Upgrade system -" >> /var/log/update_script.log
@@ -355,6 +358,7 @@ On that script write
         date >> /var/log/update_script.log
         echo >> /var/log/update_script.log
 
+Sleep 10 is to get some short time between reboot and the script execution, so the connection to the mirrors doesn't fail
 It will execute an upgrade and save the results on the log file like this:
 
         ----------------------------
@@ -470,6 +474,18 @@ Add the new job. The file should look like this:
         @reboot sudo /etc/cron.d/update_script.sh
         0 4 * * 6 sudo /etc/cron.d/update_script.sh
         0 0 * * * sudo /etc/cron.d/check.sh
+
+
+After adding the script to kill unnecessary processes, it looks like this:
+
+        SHELL=/bin/bash
+        PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+        @reboot sudo /etc/cron.d/update_script.sh
+        @reboot sudo /etc/cron.d/stop_services.sh
+        0 4 * * 6 sudo /etc/cron.d/update_script.sh
+        0 0 * * * sudo /etc/cron.d/check.sh
+
 
 
 # WEB PART
