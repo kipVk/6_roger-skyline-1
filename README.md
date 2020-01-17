@@ -623,3 +623,71 @@ And to load our new config run those commands:
         sudo a2ensite default-ssl
         sudo a2enconf ssl-params
         systemctl reload apache2
+
+# DEPLOYMENT PART
+
+To deploy this web I have decided to use an on demand or scheduled script that synchronizes the web work in progress folder to the published folder.
+Right now, I'm editing my web on:
+
+        /var/www/rcenamor_wip
+
+And I'm publishing it to:
+
+        /var/www/rcenamor
+
+I have made a script in:
+
+        /etc/cron.d/deploy_web.sh
+
+That synchronizes all the changes from the wip folder to the published folder.
+        
+        #!/bin/bash
+
+        echo >> /var/log/deploy_web_script.log
+        echo "---------------------------" >> /var/log/deploy_web_script.log
+        echo "- rcenamor Web Deployment -" >> /var/log/deploy_web_script.log
+        echo "---------------------------" >> /var/log/deploy_web_script.log
+        echo >> /var/log/deploy_web_script.log
+        echo "Started at: " >> /var/log/deploy_web_script.log
+        date >> /var/log/deploy_web_script.log
+        echo >> /var/log/deploy_web_script.log
+        echo "---------------------------" >> /var/log/deploy_web_script.log
+        rsync -av /var/www/rcenamor_wip/* /var/www/rcenamor >> /var/log/deploy_web_script.log
+        echo "---------------------------" >> /var/log/deploy_web_script.log
+        echo >> /var/log/deploy_web_script.log
+        echo "Finished at: " >> /var/log/deploy_web_script.log
+        date >> /var/log/deploy_web_script.log
+        echo >> /var/log/deploy_web_script.log
+
+
+Using rsync
+
+        sudo apt-get install rsync
+
+This will generate a log file in:
+
+        /var/log/deploy_web_script.log
+
+With this format:
+
+        ---------------------------
+        - rcenamor Web Deployment -
+        ---------------------------
+
+        Started at:
+        Fri Jan 17 16:00:34 EET 2020
+
+        ---------------------------
+        sending incremental file list
+        new_file.txt
+
+        sent 203 bytes  received 35 bytes  476.00 bytes/sec
+        total size is 10,020  speedup is 42.10
+        ---------------------------
+
+        Finished at:
+        Fri Jan 17 16:00:34 EET 2020
+
+This deployment script can be scheduled using cron, or launched on demand when the changes want to be published to the public web.
+
+
