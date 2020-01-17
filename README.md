@@ -486,6 +486,7 @@ After adding the script to kill unnecessary processes, it looks like this:
         0 4 * * 6 sudo /etc/cron.d/update_script.sh
         0 0 * * * sudo /etc/cron.d/check.sh
 
+I noticed that the services don't aways start again after reboot, so it's better to let this script be executed on demand.
 
 
 # WEB PART
@@ -643,6 +644,7 @@ That synchronizes all the changes from the wip folder to the published folder.
         
         #!/bin/bash
 
+        sleep 10
         echo >> /var/log/deploy_web_script.log
         echo "---------------------------" >> /var/log/deploy_web_script.log
         echo "- rcenamor Web Deployment -" >> /var/log/deploy_web_script.log
@@ -690,4 +692,17 @@ With this format:
 
 This deployment script can be scheduled using cron, or launched on demand when the changes want to be published to the public web.
 
+        sudo crontab -e
+
+If we wanted to deploy the web every time the server gets rebooted and every day at 4 am:
+
+        SHELL=/bin/bash
+        PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+        @reboot sudo /etc/cron.d/update_script.sh
+        @reboot sudo /etc/cron.d/stop_services.sh
+        @reboot sudo /etc/cron.d/deploy_web.sh
+        0 4 * * 6 sudo /etc/cron.d/update_script.sh
+        0 0 * * * sudo /etc/cron.d/check.sh
+        0 4 * * * sudo /etc/cron.d/deploy_web.sh
 
