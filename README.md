@@ -236,6 +236,11 @@ We set the destination mail, and the sender
 
 The DOS protection is set. We can modify in the sshd section the maxrety values or the bantime.  
 
+Checked this with Slowloris, by cloning this project:
+
+	https://github.com/gkbrk/slowloris
+
+
 
 # PORT SCANNING #  
 
